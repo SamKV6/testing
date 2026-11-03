@@ -128,6 +128,54 @@ test('ES-SEARCH-01: случайные символы и неполное наз
 
 
 // TC-05 · ИЗБРАННОЕ
+// Проверяет:
+//   - кнопка «В избранное» (.to_favorites) видна на карточке товара
+//   - у кнопки корректный title «В избранное»
+//   - кнопка кликабельна
+//   - счётчик в нижнем тулбаре (#ft_favorites .count) меняется на 1
+// ================================================================
+test.describe('TC-05 Избранное', () => {
+
+    test('кнопка «В избранное» видна, имеет корректный title и кликабельна', async ({ page }) => {
+        await page.goto('/');
+
+        const heart = page.locator(product.card).first().locator(favorites.heartBtn).first();
+
+        await expect(heart, 'кнопка «В избранное» должна быть видна').toBeVisible();
+        await expect(heart, 'title кнопки должен быть «В избранное»')
+            .toHaveAttribute('title', favorites.heartTitle);
+        await expect(heart, 'кнопка «В избранное» должна быть кликабельна').toBeEnabled();
+    });
+
+    test('счётчик избранного в нижнем тулбаре увеличивается и уменьшается на 1', async ({ page }) => {
+        await page.goto('/');
+
+        const heart = page.locator(product.card).first().locator(favorites.heartBtn).first();
+        const counter = page.locator(favorites.fixedCount).first();
+
+        await expect(heart).toBeVisible();
+
+        // Считываем текущее значение счётчика (если элемента нет — считаем 0)
+        const readCount = async (): Promise<number> => {
+            if (!(await counter.count())) return 0;
+            const txt = (await counter.textContent())?.trim() ?? '';
+            return Number(txt.replace(/\D/g, '') || '0');
+        };
+
+        const before = await readCount();
+
+        await heart.click();
+        await expect(heart).toHaveClass(favorites.heartActiveClass);
+        await expect(counter, 'счётчик избранного должен увеличиться на 1')
+            .toHaveText(String(before + 1));
+
+        await heart.click();
+        await expect(heart).not.toHaveClass(favorites.heartActiveClass);
+        await expect(counter, 'счётчик избранного должен вернуться к исходному значению')
+            .toHaveText(String(before));
+    });
+
+});
 
 // TC-06 · СТРАНИЦА ТОВАРА
 // TC-06 · СТРАНИЦА ТОВАРА
