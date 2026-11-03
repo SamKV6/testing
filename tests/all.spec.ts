@@ -52,42 +52,69 @@ test.describe('TC-02 Шапка сайта', () => {
     ];
 
     test('верхнее меню содержит все пункты', async ({ page }) => {
-        await page.goto('/');
+        await test.step('Открыть главную страницу', async () => {
+            await page.goto('/');
+        });
 
-        await expect(page.locator(header.topMenu), 'верхнее меню должно быть в DOM').toHaveCount(1);
+        await test.step('Проверить, что верхнее меню есть на странице', async () => {
+            await expect(page.locator(header.topMenu), 'верхнее меню должно быть в DOM').toHaveCount(1);
+        });
 
         for (const name of menuItems) {
-            await expect(
-                page.locator(header.topMenuLink(name)).first(),
-                `пункт меню «${name}» должен быть виден`,
-            ).toBeVisible();
+            await test.step(`Проверить пункт меню «${name}»`, async () => {
+                await expect(
+                    page.locator(header.topMenuLink(name)).first(),
+                    `пункт меню «${name}» должен быть виден`,
+                ).toBeVisible();
+            });
         }
 
-        await expect(
-            page.locator(header.topMenuLink('Главная')).first(),
-            'пункт «Главная» должен вести на /',
-        ).toHaveAttribute('href', '/');
+        await test.step('Проверить, что «Главная» ведёт на /', async () => {
+            await expect(
+                page.locator(header.topMenuLink('Главная')).first(),
+                'пункт «Главная» должен вести на /',
+            ).toHaveAttribute('href', '/');
+        });
     });
 
     test('логотип, регион, вход и регистрация отображаются', async ({ page }) => {
-        await page.goto('/');
+        await test.step('Открыть главную страницу', async () => {
+            await page.goto('/');
+        });
 
-        await expect(page.locator(header.logo).first(), 'логотип должен быть виден').toBeVisible();
-        await expect(page.locator(header.regionLink).first(), 'ссылка выбора региона должна быть видна').toBeVisible();
-        await expect(page.locator(header.loginLink).first(), 'ссылка «Войти» должна быть видна').toBeVisible();
-        await expect(page.locator(header.registerLink).first(), 'ссылка «Регистрация» должна быть видна').toBeVisible();
+        await test.step('Проверить логотип', async () => {
+            await expect(page.locator(header.logo).first(), 'логотип должен быть виден').toBeVisible();
+        });
+
+        await test.step('Проверить ссылку выбора региона', async () => {
+            await expect(page.locator(header.regionLink).first(), 'ссылка выбора региона должна быть видна').toBeVisible();
+        });
+
+        await test.step('Проверить ссылку «Вход»', async () => {
+            await expect(page.locator(header.loginLink).first(), 'ссылка «Войти» должна быть видна').toBeVisible();
+        });
+
+        await test.step('Проверить ссылку «Регистрация»', async () => {
+            await expect(page.locator(header.registerLink).first(), 'ссылка «Регистрация» должна быть видна').toBeVisible();
+        });
     });
 
     test('в шапке есть телефон (tel:) и e-mail (mailto:)', async ({ page }) => {
-        await page.goto('/');
+        await test.step('Открыть главную страницу', async () => {
+            await page.goto('/');
+        });
 
-        const phone = page.locator(header.phone).first();
-        await expect(phone, 'телефон должен быть виден').toBeVisible();
-        await expect(phone, 'телефон должен быть в формате tel:+7...').toHaveAttribute('href', /^tel:\+?\d+$/);
+        await test.step('Проверить телефон', async () => {
+            const phone = page.locator(header.phone).first();
+            await expect(phone, 'телефон должен быть виден').toBeVisible();
+            await expect(phone, 'телефон должен быть в формате tel:+7...').toHaveAttribute('href', /^tel:\+?\d+$/);
+        });
 
-        const email = page.locator(header.email).first();
-        await expect(email, 'e-mail должен быть виден').toBeVisible();
-        await expect(email, 'e-mail должен быть ссылкой mailto:').toHaveAttribute('href', /^mailto:.+@.+/);
+        await test.step('Проверить e-mail', async () => {
+            const email = page.locator(header.email).first();
+            await expect(email, 'e-mail должен быть виден').toBeVisible();
+            await expect(email, 'e-mail должен быть ссылкой mailto:').toHaveAttribute('href', /^mailto:.+@.+/);
+        });
     });
 });
 
