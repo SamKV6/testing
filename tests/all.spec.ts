@@ -43,5 +43,22 @@ test.describe('TC-01 Корзина в шапке', () => {
 // TC-05 · ИЗБРАННОЕ
 
 // TC-06 · СТРАНИЦА ТОВАРА
+test.use({ baseURL: 'https://vladivostok.e-sweets.ru' });
+
+test('ES-PRODUCT-01: проверка карточки товара', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  const firstCard = page.locator(product.card).first();
+
+  await expect(firstCard).toBeVisible();
+  await expect(firstCard.locator(product.title)).toBeVisible();
+  await expect(firstCard.locator(product.price)).toBeVisible();
+  await expect(firstCard.locator(product.image)).toBeVisible();
+  await expect(firstCard.locator(product.stock)).toBeVisible();
+
+  const buyBtn = firstCard.locator(product.buyBtn);
+  await expect(buyBtn).toBeVisible();
+  await expect(buyBtn).toHaveAttribute('href', /\/product\//);
+});
 
 // TC-07 · НИЖНИЙ ФИКСИРОВАННЫЙ ТУЛБАР (мобильный)
