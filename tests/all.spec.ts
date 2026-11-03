@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { cart, cartLink, search, product } from '../page-objects/selectors';
+import { cart, cartLink, search, product, fixedToolbar } from '../page-objects/selectors';
 
 // ================================================================
 // TC-01 · КОРЗИНА: иконка, счётчик, пустое состояние (ЭТАЛОН)
@@ -32,6 +32,8 @@ test.describe('TC-01 Корзина в шапке', () => {
 
 
 });
+
+
 
 // TC-02 · ШАПКА: пункты меню и контакты
 
@@ -128,5 +130,46 @@ test('ES-SEARCH-01: случайные символы и неполное наз
 // TC-05 · ИЗБРАННОЕ
 
 // TC-06 · СТРАНИЦА ТОВАРА
+// TC-06 · СТРАНИЦА ТОВАРА
+test('ES-PRODUCT-01: проверка карточки товара', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
 
+  // первая карточка, у которой есть кнопка «Купить» (то есть товар в наличии)
+  const firstCard = page.locator(product.card)
+    .filter({ has: page.locator(product.buyBtn) })
+    .first();
+
+  await expect(firstCard, 'карточка товара должна быть видна').toBeVisible();
+  await expect(firstCard.locator(product.title), 'название').toBeVisible();
+  await expect(firstCard.locator(product.price), 'цена').toHaveText(/руб/);
+  await expect(firstCard.locator(product.image), 'картинка').toBeVisible();
+  await expect(firstCard.locator(product.inStock), 'статус наличия').toHaveText('В наличии');
+
+  const buyBtn = firstCard.locator(product.buyBtn);
+  await expect(buyBtn, 'кнопка «Купить»').toBeVisible();
+  await expect(buyBtn, 'кнопка ведёт на страницу товара').toHaveAttribute('href', /\/product\//);
+});
+
+// ================================================================
 // TC-07 · НИЖНИЙ ФИКСИРОВАННЫЙ ТУЛБАР (мобильный)
+// ----------------------------------------------------------------
+// Проверяет:
+//   - на мобильном viewport виден #fixed_toolbar
+//   - в нём видны пункты: избранное, сравнение, просмотренные, корзина
+// ================================================================
+test.describe('TC-07 Фиксированный тулбар', () => {
+    // Мобильный viewport (iPhone SE)
+    test.use({ viewport: { width: 375, height: 667 } });
+
+    test('тулбар виден на мобильном viewport', async ({ page }) => {
+        await page.goto('/');
+
+        const toolbar = page.locator(fixedToolbar.root);
+        await expect(toolbar, 'тулбар #fixed_toolbar должен быть виден на мобильном').toBeVisible();
+
+        await expect(page.locator(fixedToolbar.favorites), 'пункт «Избранное» должен быть виден').toBeVisible();
+        await expect(page.locator(fixedToolbar.compare), 'пункт «Сравнение» должен быть виден').toBeVisible();
+        await expect(page.locator(fixedToolbar.viewed), 'пункт «Просмотренные» должен быть виден').toBeVisible();
+        await expect(page.locator(fixedToolbar.cart), 'пункт «Корзина» должен быть виден').toBeVisible();
+    });
+});
