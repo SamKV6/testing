@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { cart, cartLink } from '../page-objects/selectors';
+import { cart, cartLink, fixedToolbar } from '../page-objects/selectors';
 
 // ================================================================
 // TC-01 · КОРЗИНА: иконка, счётчик, пустое состояние (ЭТАЛОН)
@@ -46,4 +46,26 @@ test.describe('TC-01 Корзина в шапке', () => {
 
 // TC-06 · СТРАНИЦА ТОВАРА
 
+// ================================================================
 // TC-07 · НИЖНИЙ ФИКСИРОВАННЫЙ ТУЛБАР (мобильный)
+// ----------------------------------------------------------------
+// Проверяет:
+//   - на мобильном viewport виден #fixed_toolbar
+//   - в нём видны пункты: избранное, сравнение, просмотренные, корзина
+// ================================================================
+test.describe('TC-07 Фиксированный тулбар', () => {
+    // Мобильный viewport (iPhone SE)
+    test.use({ viewport: { width: 375, height: 667 } });
+
+    test('тулбар виден на мобильном viewport', async ({ page }) => {
+        await page.goto('/');
+
+        const toolbar = page.locator(fixedToolbar.root);
+        await expect(toolbar, 'тулбар #fixed_toolbar должен быть виден на мобильном').toBeVisible();
+
+        await expect(page.locator(fixedToolbar.favorites), 'пункт «Избранное» должен быть виден').toBeVisible();
+        await expect(page.locator(fixedToolbar.compare), 'пункт «Сравнение» должен быть виден').toBeVisible();
+        await expect(page.locator(fixedToolbar.viewed), 'пункт «Просмотренные» должен быть виден').toBeVisible();
+        await expect(page.locator(fixedToolbar.cart), 'пункт «Корзина» должен быть виден').toBeVisible();
+    });
+});
