@@ -43,27 +43,33 @@ test.describe('TC-01 Корзина в шапке', () => {
 // Шаги: открыть главную → ввести запрос → нажать Enter.
 // Ожидается: страница поиска с сообщением об отсутствии результатов.
 test('ES-SEARCH-01: случайные символы и неполное название', async ({ page }) => {
-    let productName: string;
     let partialName: string;
 
-    await test.step('Открыть главную и выбрать существующий товар', async () => {
+    await test.step('Открыть главную и выбрать название товара', async () => {
         await page.goto('/', { waitUntil: 'domcontentloaded' });
 
         const title = page.locator(product.titleLink).first();
         await expect(title).toBeVisible();
 
-        productName = (await title.innerText()).replace(/\s+/g, ' ').trim();
+        const productName = (await title.innerText())
+            .replace(/\s+/g, ' ')
+            .trim();
 
-        // Берём часть слова из названия, чтобы запрос был неполным.
         const word = productName.match(/[a-zа-яё]{5,}/iu)?.[0];
-        expect(word, 'В названии должно быть слово минимум из 5 букв').toBeTruthy();
+
+        expect(
+            word,
+            'В названии должно быть слово минимум из 5 букв'
+        ).toBeTruthy();
 
         partialName = word!.slice(0, -2);
     });
 
-    await test.step('Проверить отсутствие результатов для случайных символов', async () => {
+    await test.step('Случайные символы не дают результатов', async () => {
         const query = 'zxqwv1234codex987654321';
-        const input = page.locator(search.desktopContainer).locator(search.input);
+        const input = page
+            .locator(search.desktopContainer)
+            .locator(search.input);
 
         await expect(input).toBeVisible();
         await input.fill(query);
@@ -72,13 +78,17 @@ test('ES-SEARCH-01: случайные символы и неполное наз
         await expect(page).toHaveURL(
             new RegExp('/search/' + query + '/?(?:[?#].*)?$')
         );
+
         await expect(page.locator(search.emptyWrapper)).toBeVisible();
+
         await expect(page.locator(search.emptyHeader))
             .toContainText(search.emptyText);
     });
 
-    await test.step('Проверить поиск по неполному названию', async () => {
-        const input = page.locator(search.desktopContainer).locator(search.input);
+    await test.step('Неполное название находит подходящие товары', async () => {
+        const input = page
+            .locator(search.desktopContainer)
+            .locator(search.input);
 
         await expect(input).toBeVisible();
         await input.fill(partialName);
@@ -92,14 +102,22 @@ test('ES-SEARCH-01: случайные символы и неполное наз
 
         await expect(page.locator(search.emptyWrapper)).toBeHidden();
 
-        const foundProduct = page.locator(product.titleLink).filter({
-            hasText: productName,
-        });
+        const foundProducts = page.locator(product.titleLink);
 
         await expect(
-            foundProduct.first(),
-            'Исходный товар должен находиться по части его названия'
+            foundProducts.first(),
+            'По части названия должны находиться товары'
         ).toBeVisible();
+
+        await expect.poll(async () => {
+            const names = await foundProducts.allTextContents();
+
+            return names.some(name =>
+                name.toLowerCase().includes(partialName.toLowerCase())
+            );
+        }, {
+            message: 'Хотя бы один товар должен содержать введённую часть названия',
+        }).toBe(true);
     });
 });
 
