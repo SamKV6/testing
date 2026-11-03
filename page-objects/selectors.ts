@@ -171,46 +171,13 @@ export const sorting = {
 // </div>
 // ================================================================
 export const product = {
-  // ⚠️ .in встречается и вне .product (например, в шапке .h_contacts .in),
-  // поэтому карточку ограничиваем .product .in
-  card: '.product .in',
-
-  link: '.img_middle',
-  image: '.img_middle_in img',
-  title: '.product_name a span',
-  titleLink: '.product_name a',
-
-  // Цена за штуку — первая .price.nowrap внутри карточки
-  price: '.price.nowrap',
-  // Цена за упаковку
-  pricePerPack: '.price-pkg',
-  // Количество в упаковке
-  unitsPerPack: '.v_upakovke',
-  // Срок годности (краткая строка на карточке)
-  shelfLife: '.shelf-life',
-
-  // ⚠️ .btn_add2cart — это ссылка на страницу товара (/product/...),
-  // а НЕ добавление в корзину. Реальное добавление через форму:
-  buyBtn: '.btn_add2cart',
-  addToCartForm: 'form.purchase.addtocart',
-  productIdInput: 'form.purchase.addtocart input[name="product_id"]',
-  quantityInput: 'form.purchase.addtocart input[name="quantity"]',
-
-  // Иконки на карточке
-  favoritesBtn: '.to_favorites',
-  compareBtn: '.to_compare',
-
-  // Наличие
-  stock: '.stock',
-  stockInStock: '.stock.yes',   // «В наличии»
-  stockOut: '.stock.no',        // «Нет в наличии»
-
-  // Бейджи
-  badgeNew: '.badge.new',       // «New!»
-  badgeHit: '.badge.bestseller', // «Хит!»
-
-  // Кнопка «Уведомить» у товаров не в наличии
-  arrivedBtn: '.plugin_arrived-button',
+  card:   '.product:not(.slick-cloned)', // карточка товара (без клонов слайдера)
+  title:  '.product_name a',
+  price:  '.price',
+  image:  '.image_wrap img',
+  stock:  '.stock',
+  inStock: '.stock.yes',
+  buyBtn: 'a.btn_add2cart',
 };
 
 // ================================================================

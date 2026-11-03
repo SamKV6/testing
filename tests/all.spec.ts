@@ -45,6 +45,25 @@ test.describe('TC-01 Корзина в шапке', () => {
 // TC-05 · ИЗБРАННОЕ
 
 // TC-06 · СТРАНИЦА ТОВАРА
+// TC-06 · СТРАНИЦА ТОВАРА
+test('ES-PRODUCT-01: проверка карточки товара', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  // первая карточка, у которой есть кнопка «Купить» (то есть товар в наличии)
+  const firstCard = page.locator(product.card)
+    .filter({ has: page.locator(product.buyBtn) })
+    .first();
+
+  await expect(firstCard, 'карточка товара должна быть видна').toBeVisible();
+  await expect(firstCard.locator(product.title), 'название').toBeVisible();
+  await expect(firstCard.locator(product.price), 'цена').toHaveText(/руб/);
+  await expect(firstCard.locator(product.image), 'картинка').toBeVisible();
+  await expect(firstCard.locator(product.inStock), 'статус наличия').toHaveText('В наличии');
+
+  const buyBtn = firstCard.locator(product.buyBtn);
+  await expect(buyBtn, 'кнопка «Купить»').toBeVisible();
+  await expect(buyBtn, 'кнопка ведёт на страницу товара').toHaveAttribute('href', /\/product\//);
+});
 
 // ================================================================
 // TC-07 · НИЖНИЙ ФИКСИРОВАННЫЙ ТУЛБАР (мобильный)
